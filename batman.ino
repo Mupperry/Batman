@@ -1,20 +1,22 @@
+
 /*
-Based on AdvancedWebServer example
+ Batman
+ Battery monitoring using ESP8266
  */
-#define PIN 4
+
+#define PIN 4 
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <Adafruit_NeoPixel.h>
 
-const char *ssid = "AP";
-const char *password = "PBAPWWW123";
+const char *ssid = "";
+const char *password = "";
 
+// Create Webserver and NeoPixel strip
 ESP8266WebServer server ( 80 );
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(30, PIN, NEO_GRB + NEO_KHZ800);
-
-const int led = 13;
 
 void handleRoot() {
 	int sec = (millis() / 1000);
@@ -47,14 +49,11 @@ void handleRoot() {
 response += "</html>";
   
 	server.send ( 200, "text/html", response );
-	digitalWrite ( led, 0 );
 }
 
 void setup ( void ) {
-	pinMode ( led, OUTPUT );
-	digitalWrite ( led, 0 );
   strip.begin();
-  strip.show();
+  strip.show(); // Initialize all pixels to off-state
   colorWipe(strip.Color(10, 0, 0),20);
 	Serial.begin ( 115200 );
 	WiFi.begin ( ssid, password );
@@ -64,8 +63,6 @@ void setup ( void ) {
 	while ( WiFi.status() != WL_CONNECTED ) {
 		delay ( 500 );
 		Serial.print ( "." );
-
-   
 	}
 
 	Serial.println ( "" );
@@ -75,9 +72,6 @@ void setup ( void ) {
 	Serial.println ( WiFi.localIP() );
 
 	server.on ( "/", handleRoot );
-	server.on ( "/inline", []() {
-		server.send ( 200, "text/plain", "this works as well" );
-	} );
 	server.begin();
 	Serial.println ( "HTTP server started" );
 }
@@ -92,9 +86,9 @@ void colorWipe(uint32_t c, uint8_t wait) {
 
 void loop ( void ) {
 	server.handleClient();
-  Serial.println(analogRead(A0));
+  Serial.println(analogRead(A0)); // Easier to read than website during debug
   delay(500);
-  yield();
+  yield(); // Unnecessary? 
 }
 
 
