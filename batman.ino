@@ -2,9 +2,13 @@
 /*
  Batman
  Battery monitoring using ESP8266
+
+ BAT_VMAX set for 3S Li-Po, 4,3 V/cell
+ Max ADC voltage is 1.0 V in datasheet but may be different in practice (1.23 V)
  */
 
-#define PIN 4 
+#define PIXEL_PIN 4 
+#define BAT_VMAX 12.9
 
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
@@ -16,13 +20,13 @@ const char *password = "";
 
 // Create Webserver and NeoPixel strip
 ESP8266WebServer server ( 80 );
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(30, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(30, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
 void handleRoot() {
 	int sec = (millis() / 1000);
 	int min = (sec / 60);
   int rawValue = analogRead(A0);
-  float voltage = float(rawValue)/1024.0 * 10.83 ; // For 1.2 V reference, maybe not correct
+  float voltage = float(rawValue)/1024.0 * BAT_VMAX;
   
   String response = "<html>";
   response += "<head>";
@@ -86,7 +90,11 @@ void colorWipe(uint32_t c, uint8_t wait) {
 
 void loop ( void ) {
 	server.handleClient();
-  Serial.println(analogRead(A0)); // Easier to read than website during debug
+  int rawValue = analogRead(0);
+  Serial.print(rawValue); // Easier to read than website during debug
+  Serial.print(" | ");
+  float voltage = float(rawValue)/1024.0 * BAT_VMAX;
+  Serial.println(voltage);
   delay(500);
   yield(); // Unnecessary? 
 }
